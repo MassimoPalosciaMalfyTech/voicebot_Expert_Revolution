@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Realtime Conversation App</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    #main-container {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    #controls {
+      flex: 1;
+      min-width: 350px;
+      max-width: 400px;
+    }
+    #transcript {
+      flex: 1;
+      margin-left: 40px;
+      padding: 1em;
+      border: 1px solid #ccc;
+      background: #fafaff;
+      min-width: 300px;
+      max-width: 400px;
+      height: 500px;
+      overflow-y: auto;
+    }
+    .transcript-user {
+      color: #222;
+      margin-bottom: 0.5em;
+      font-weight: 500;
+    }
+    .transcript-assistant {
+      color: #1a73e8;
+      margin-bottom: 0.5em;
+      font-weight: 500;
+    }
+    #status { margin-top: 1em; }
+    button { padding: 1em 2em; font-size: 1.2em; margin-bottom: 1em; }
+    #cameraPreview { border: 1px solid #ccc; margin-bottom: 0.5em; }
+    #capturedImage { display: none; border: 1px solid #ccc; margin-top: 0.5em; }
+    .transcript-user { color: #1a73e8; margin-bottom: 0.5em; }
+    .transcript-assistant { color: #34a853; margin-bottom: 0.5em; }
+  </style>
+</head>
+<body>
+  <h1>Realtime Conversation Control</h1>
+  <div id="main-container">
+    <div id="controls">
+      <!-- Conversation controls -->
+      <button id="toggleBtn">Turn Conversation ON</button>
+      <div id="status">Conversation is <b>OFF</b></div>
+      <hr style="margin:2em 0;">
+      <!-- Camera preview and capture -->
+      <h2>Camera</h2>
+      <video id="cameraPreview" width="320" height="240" autoplay playsinline></video>
+      <br>
+      <button id="captureBtn">Capture</button>
+      <button id="browserHelpBtn">Start Browser Help</button>
+      <br>
+      <img id="capturedImage" width="160" height="120" alt="Captured image preview">
+    </div>
+    <div id="transcript">
+      <h2>Transcript</h2>
+      <!-- Messages will be appended here by app.js -->
+    </div>
+  </div>
+
+  <!-- RIGA AGGIUNTA QUI -->
+  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+
+  <script src="app.js"></script>
+</body>
+</html>

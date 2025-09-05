@@ -1,0 +1,3 @@
+- audio
+- camera
+- web search
