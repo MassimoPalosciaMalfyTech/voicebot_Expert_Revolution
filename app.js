@@ -1,59 +1,46 @@
-// app.js (versione pulita)
+// app.js (versione aggiornata per la nuova UI)
 
 let conversationOn = false;
-let pc = null;           // RTCPeerConnection
-let dc = null;           // DataChannel
-let audioElement = null; // For model's audio output
+let pc = null;
+let dc = null;
+let audioElement = null;
 
+// Riferimenti agli elementi HTML
 const toggleBtn = document.getElementById('toggleBtn');
 const statusDiv = document.getElementById('status');
 const transcriptDiv = document.getElementById('transcript');
+const welcomeScreen = document.getElementById('welcome-screen');
+const chatContainer = document.getElementById('chat-container');
 
 // Funzione di ricerca su Excel (invariata)
 async function cercaSulFileExcelEFormattaRisposta(id) {
-  try {
-    const res = await fetch('/ExpertChatBot_testPractices.xlsx');
-    if (!res.ok) throw new Error('Download Excel fallito');
-    const buf = await res.arrayBuffer();
-    const wb = new ExcelJS.Workbook();
-    await wb.xlsx.load(buf);
-    const ws = wb.worksheets[0];
-    const headers = ws.getRow(1).values.slice(1).map(h => String(h || '').trim());
-    const col = (name) => headers.findIndex(h => h.toLowerCase() === name.toLowerCase()) + 1;
-    const rd = (row, ...names) => {
-      for (const n of names) {
-        const i = col(n);
-        if (i > 0) {
-          const t = String(row.getCell(i).text || '').trim();
-          if (t) return t;
-        }
-      }
-      return '';
-    };
-    const idCol = col('id') || 1;
-    let row = null;
-    for (let r = 2; r <= ws.rowCount; r++) {
-      const v = String(ws.getRow(r).getCell(idCol).text || '').trim();
-      if (v === String(id)) { row = ws.getRow(r); break; }
-    }
-    if (!row) return 'Pratica non trovata.';
-    const step = Number(rd(row, 'step_status'));
-    const join = (a,b) => [a,b].map(x=>x&&String(x).trim()).filter(Boolean).join(' - ') || 'contatto non disponibile';
-    if (step === 0) return 'Pratica appena arrivata: parla con un operatore fisico.';
-    if (step === 1) return 'Pratica in mano al gestore. Contatto: ' + join(rd(row,'Operator','Gestore'), rd(row,'OperatorCotact','GestoreContact')) + '.';
-    if ([3,4,9].includes(step)) return 'Pratica in mano al perito. Contatto: ' + join(rd(row,'Expert','Perito'), rd(row,'ExprtCotact','ExpertContact')) + '.';
-    if (step === 5) return 'Pratica in mano al controllore. Contatto: ' + join(rd(row,'Checker','Controllore'), rd(row,'ChecherContact','CheckerContact')) + '.';
-    if (step === 7) return 'Pratica chiusa. Contatto liquidatore: ' + join(rd(row,'Liquidatore'), rd(row,'LiquidatoreContact')) + '.';
-    return 'Impossibile applicare le regole: step_status mancante o non valido.';
-  } catch (e) {
-    return 'Errore lettura Excel: ' + e.message;
-  }
+    // ... il codice della tua funzione di ricerca è perfetto e rimane qui, invariato ...
+    try{const res=await fetch("/ExpertChatBot_testPractices.xlsx");if(!res.ok)throw new Error("Download Excel fallito");const buf=await res.arrayBuffer();const wb=new ExcelJS.Workbook;await wb.xlsx.load(buf);const ws=wb.worksheets[0];const headers=ws.getRow(1).values.slice(1).map(h=>String(h||"").trim());const col=e=>headers.findIndex(h=>h.toLowerCase()===e.toLowerCase())+1;const rd=(e,...t)=>{for(const s of t){const t=col(s);if(t>0){const s=String(e.getCell(t).text||"").trim();if(s)return s}}return""};const idCol=col("id")||1;let row=null;for(let e=2;e<=ws.rowCount;e++){const t=String(ws.getRow(e).getCell(idCol).text||"").trim();if(t===String(id)){row=ws.getRow(e);break}}if(!row)return"Pratica non trovata.";const step=Number(rd(row,"step_status"));const join=(e,t)=>[e,t].map(e=>e&&String(e).trim()).filter(Boolean).join(" - ")||"contatto non disponibile";if(0===step)return"Pratica appena arrivata: parla con un operatore fisico.";if(1===step)return"Pratica in mano al gestore. Contatto: "+join(rd(row,"Operator","Gestore"),rd(row,"OperatorCotact","GestoreContact"))+".";if([3,4,9].includes(step))return"Pratica in mano al perito. Contatto: "+join(rd(row,"Expert","Perito"),rd(row,"ExprtCotact","ExpertContact"))+".";if(5===step)return"Pratica in mano al controllore. Contatto: "+join(rd(row,"Checker","Controllore"),rd(row,"ChecherContact","CheckerContact"))+".";if(7===step)return"Pratica chiusa. Contatto liquidatore: "+join(rd(row,"Liquidatore"),rd(row,"LiquidatoreContact"))+".";return"Impossibile applicare le regole: step_status mancante o non valido"}catch(e){return"Errore lettura Excel: "+e.message}
 }
 
-// Helper per aggiornare la UI
+
+// --- MODIFICA CHIAVE QUI ---
+// Helper per aggiornare la UI: ora gestisce anche le schermate
 function updateUI() {
-  toggleBtn.textContent = conversationOn ? 'Turn Conversation OFF' : 'Turn Conversation ON';
-  statusDiv.innerHTML = `Conversation is <b>${conversationOn ? 'ON' : 'OFF'}</b>`;
+  if (conversationOn) {
+    // Nascondi la schermata di benvenuto e mostra la chat
+    welcomeScreen.style.display = 'none';
+    chatContainer.style.display = 'block';
+    
+    // Inserisci il pulsante "OFF" dentro la schermata della chat
+    chatContainer.insertBefore(toggleBtn, statusDiv);
+    toggleBtn.textContent = 'Termina Conversazione';
+    statusDiv.innerHTML = `Stato Conversazione: <b>ATTIVA</b>`;
+  } else {
+    // Mostra la schermata di benvenuto e nascondi la chat
+    welcomeScreen.style.display = 'flex';
+    chatContainer.style.display = 'none';
+
+    // Riporta il pulsante "ON" nella schermata di benvenuto
+    welcomeScreen.appendChild(toggleBtn);
+    toggleBtn.textContent = 'Avvia la conversazione';
+    statusDiv.innerHTML = ''; // Pulisci lo status quando la chat è chiusa
+  }
 }
 
 // Avvia la conversazione
@@ -128,12 +115,12 @@ async function startConversation() {
       }
 
       if (event.type === "response.output_audio_transcript.done" && event.transcript) {
-        appendToTranscript("agent", event.transcript.trim());
+        appendToTranscript("agent", `Agente: ${event.transcript.trim()}`);
         return;
       }
 
       if (event.type === "conversation.item.input_audio_transcription.completed" && event.transcript) {
-        appendToTranscript("user", event.transcript.trim());
+        appendToTranscript("user", `Tu: ${event.transcript.trim()}`);
         return;
       }
 
@@ -162,14 +149,8 @@ async function startConversation() {
 
 // Ferma la conversazione
 function stopConversation() {
-  if (pc) {
-    pc.close();
-    pc = null;
-  }
-  if (audioElement) {
-    audioElement.remove();
-    audioElement = null;
-  }
+  if (pc) { pc.close(); pc = null; }
+  if (audioElement) { audioElement.remove(); audioElement = null; }
   dc = null;
   console.log("Conversation stopped.");
 }
@@ -177,12 +158,12 @@ function stopConversation() {
 // Gestore del pulsante ON/OFF
 toggleBtn.addEventListener('click', async () => {
   conversationOn = !conversationOn;
-  updateUI();
   if (conversationOn) {
     await startConversation();
   } else {
     stopConversation();
   }
+  updateUI();
 });
 
 // Helper per aggiungere testo alla trascrizione
@@ -190,10 +171,10 @@ function appendToTranscript(role, text) {
   if (!transcriptDiv || !text) return;
   const p = document.createElement('div');
   p.className = role === "agent" ? "transcript-assistant" : "transcript-user";
-  p.textContent = (role === "agent" ? "Agent: " : "User: ") + text;
+  p.textContent = text;
   transcriptDiv.appendChild(p);
   transcriptDiv.scrollTop = transcriptDiv.scrollHeight;
 }
 
-// Aggiornamento iniziale della UI
+// Chiamata iniziale per impostare la UI
 updateUI();
