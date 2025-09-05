@@ -9,39 +9,31 @@
       display: flex;
       flex-direction: row;
       align-items: flex-start;
+      gap: 40px; /* Aggiunge spazio tra i controlli e la trascrizione */
     }
     #controls {
-      flex: 1;
-      min-width: 350px;
-      max-width: 400px;
+      flex: 0 0 300px; /* Larghezza fissa per la colonna dei controlli */
     }
     #transcript {
-      flex: 1;
-      margin-left: 40px;
+      flex-grow: 1; /* La trascrizione occupa lo spazio rimanente */
       padding: 1em;
       border: 1px solid #ccc;
       background: #fafaff;
-      min-width: 300px;
-      max-width: 400px;
       height: 500px;
       overflow-y: auto;
     }
     .transcript-user {
-      color: #222;
-      margin-bottom: 0.5em;
-      font-weight: 500;
-    }
-    .transcript-assistant {
       color: #1a73e8;
       margin-bottom: 0.5em;
       font-weight: 500;
     }
+    .transcript-assistant {
+      color: #34a853;
+      margin-bottom: 0.5em;
+      font-weight: 500;
+    }
     #status { margin-top: 1em; }
-    button { padding: 1em 2em; font-size: 1.2em; margin-bottom: 1em; }
-    #cameraPreview { border: 1px solid #ccc; margin-bottom: 0.5em; }
-    #capturedImage { display: none; border: 1px solid #ccc; margin-top: 0.5em; }
-    .transcript-user { color: #1a73e8; margin-bottom: 0.5em; }
-    .transcript-assistant { color: #34a853; margin-bottom: 0.5em; }
+    button { padding: 1em 2em; font-size: 1.2em; margin-bottom: 1em; width: 100%; }
   </style>
 </head>
 <body>
@@ -51,15 +43,6 @@
       <!-- Conversation controls -->
       <button id="toggleBtn">Turn Conversation ON</button>
       <div id="status">Conversation is <b>OFF</b></div>
-      <hr style="margin:2em 0;">
-      <!-- Camera preview and capture -->
-      <h2>Camera</h2>
-      <video id="cameraPreview" width="320" height="240" autoplay playsinline></video>
-      <br>
-      <button id="captureBtn">Capture</button>
-      <button id="browserHelpBtn">Start Browser Help</button>
-      <br>
-      <img id="capturedImage" width="160" height="120" alt="Captured image preview">
     </div>
     <div id="transcript">
       <h2>Transcript</h2>
@@ -67,9 +50,10 @@
     </div>
   </div>
 
-  <!-- RIGA AGGIUNTA QUI -->
+  <!-- Carica la libreria ExcelJS -->
   <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
 
+  <!-- Carica il tuo script -->
   <script src="app.js"></script>
 </body>
 </html>
